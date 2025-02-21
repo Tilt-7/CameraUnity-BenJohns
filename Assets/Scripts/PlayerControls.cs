@@ -5,7 +5,9 @@ using UnityEngine;
 public class PlayerControls : MonoBehaviour
 {
     // Variables
-
+    // Check in Inspector if GameObject is Player One or Player Two
+    public bool playerOne = true;
+    public bool playerTwo = false;
     // Access Unity APIs for components
     public CharacterController controller;
     public Animator anim;
@@ -38,12 +40,23 @@ public class PlayerControls : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         // Assign player input from Project Settings to variables
-        runInput = Input.GetAxis("Vertical");
-        rotateInput = Input.GetAxis("Horizontal");
+        if (playerOne)
+        {
+            runInput = Input.GetAxis("Vertical");
+            rotateInput = Input.GetAxis("Horizontal");
+            jumpInput = Input.GetAxis("Jump");
+        }
+        else
+        {
+            runInput = Input.GetAxis("VerticalTwo");
+            rotateInput = Input.GetAxis("HorizontalTwo");
+            jumpInput = Input.GetAxis("JumpTwo");
+        }
 
         // Check to see if jump key is pressed
-        CheckJump();
+
 
         // Set moveDir to new Vector3 based on player input
         moveDir = new Vector3(0, jumpInput * jumpHeight, runInput * runningSpeed);
@@ -59,22 +72,6 @@ public class PlayerControls : MonoBehaviour
         Effects();
     }
 
-    void CheckJump()
-    {
-        if (Input.GetKey(KeyCode.Space))
-        {
-            jumpInput = 1;
-            if (audioSource != null && audioSource.isPlaying)
-            {
-                audioSource.Stop();
-            }
-        }
-
-        if (controller.isGrounded)
-        {
-            jumpInput = 0;
-        }
-    }
 
     void Effects()
     {
@@ -86,7 +83,9 @@ public class PlayerControls : MonoBehaviour
                 audioSource.clip = runningSound;
                 audioSource.Play();
             }
-        } else {
+        }
+        else
+        {
             anim.SetBool("Run Forward", false);
             if (audioSource != null && audioSource.isPlaying)
             {
@@ -94,10 +93,18 @@ public class PlayerControls : MonoBehaviour
             }
         }
 
-        if (jumpInput == 1)
+        if (jumpInput != 0) // Update the condition for jumping
         {
             anim.SetBool("Jump", true);
-        } else {
+
+            // Stop running sound when jumping
+            if (audioSource != null && audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
+        }
+        else
+        {
             anim.SetBool("Jump", false);
         }
     }
